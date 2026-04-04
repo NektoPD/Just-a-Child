@@ -15,6 +15,7 @@ public class PlayerModel : IInitializable
     }
     
     public IReadOnlyReactiveProperty<float> CurrentFearLevel => _currentFearLevel;
+    public bool IsFearMaxed => _currentFearLevel.Value >= _playerConfig.MaxFearValue;
 
     public void Initialize()
     {
@@ -27,9 +28,21 @@ public class PlayerModel : IInitializable
             _playerConfig.MaxFearValue);
     }
 
+    public void IncreaseFearBy(float amount)
+    {
+        _currentFearLevel.Value = Math.Clamp(_currentFearLevel.Value + amount, 0,
+            _playerConfig.MaxFearValue);
+    }
+
     public void DecreaseFear()
     {
         _currentFearLevel.Value = Math.Clamp(_currentFearLevel.Value - _playerConfig.FearDecreaseValue, 0,
+            _playerConfig.MaxFearValue);
+    }
+
+    public void DecreaseFearBy(float amount)
+    {
+        _currentFearLevel.Value = Math.Clamp(_currentFearLevel.Value - amount, 0,
             _playerConfig.MaxFearValue);
     }
     

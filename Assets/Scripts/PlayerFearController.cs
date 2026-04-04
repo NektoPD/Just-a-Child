@@ -31,8 +31,6 @@ public class PlayerFearController : MonoBehaviour
 
         _fearMeterView.UpdateVisuals(_playerModel.CurrentFearLevel.Value);
         
-        StartIncreasingFear();
-        
         _inputController.OnInteractionPerformed.Subscribe(_ => _playerModel.DecreaseFear()).AddTo(_disposables);
     }
 
