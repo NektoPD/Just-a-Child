@@ -7,21 +7,33 @@ namespace Furniture
     public class FearAttractionManager : MonoBehaviour
     {
         [SerializeField] private FearAttraction[] _attractions;
+
+        [Header("Base Intervals")]
         [SerializeField] private float _minActivationInterval = 10f;
         [SerializeField] private float _maxActivationInterval = 25f;
 
+        [Header("Escalation")]
+        [SerializeField] private float _intervalDecreasePerSecond = 0.05f;
+        [SerializeField] private float _minIntervalFloor = 3f;
+        [SerializeField] private float _secondsPerExtraSlot = 60f;
+        [SerializeField] private int _maxSimultaneous = 4;
+
         private Coroutine _spawningCoroutine;
         private bool _isRunning;
+        private float _elapsedTime;
+        private int _allowedActive = 1;
 
         public void StartSpawning()
         {
             StopSpawning();
             _isRunning = true;
+            _elapsedTime = 0f;
+            _allowedActive = 1;
 
             foreach (var attraction in _attractions)
                 attraction.OnInvestigated += OnAttractionInvestigated;
 
-            _spawningCoroutine = StartCoroutine(ActivateNextAfterDelay());
+            _spawningCoroutine = StartCoroutine(SpawningLoop());
         }
 
         public void StopSpawning()
@@ -50,19 +62,50 @@ namespace Furniture
         private void OnAttractionInvestigated()
         {
             if (!_isRunning) return;
-            _spawningCoroutine = StartCoroutine(ActivateNextAfterDelay());
+            TryActivateOne();
         }
 
-        private IEnumerator ActivateNextAfterDelay()
+        private IEnumerator SpawningLoop()
         {
-            float delay = Random.Range(_minActivationInterval, _maxActivationInterval);
-            yield return new WaitForSeconds(delay);
+            yield return new WaitForSeconds(GetCurrentInterval());
 
+            while (_isRunning)
+            {
+                _elapsedTime += GetCurrentInterval();
+                _allowedActive = Mathf.Min(1 + Mathf.FloorToInt(_elapsedTime / _secondsPerExtraSlot), _maxSimultaneous);
+
+                if (GetActiveCount() < _allowedActive)
+                    TryActivateOne();
+
+                yield return new WaitForSeconds(GetCurrentInterval());
+            }
+
+            _spawningCoroutine = null;
+        }
+
+        private float GetCurrentInterval()
+        {
+            float reduction = _elapsedTime * _intervalDecreasePerSecond;
+            float min = Mathf.Max(_minActivationInterval - reduction, _minIntervalFloor);
+            float max = Mathf.Max(_maxActivationInterval - reduction, _minIntervalFloor);
+            return Random.Range(min, max);
+        }
+
+        private void TryActivateOne()
+        {
             FearAttraction candidate = GetRandomInactive();
             if (candidate != null)
                 candidate.Activate();
+        }
 
-            _spawningCoroutine = null;
+        private int GetActiveCount()
+        {
+            int count = 0;
+            foreach (var a in _attractions)
+            {
+                if (a.IsActive) count++;
+            }
+            return count;
         }
 
         private FearAttraction GetRandomInactive()

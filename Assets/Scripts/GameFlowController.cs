@@ -5,6 +5,7 @@ using Furniture;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 using Zenject;
 
 public class GameFlowController : MonoBehaviour
@@ -35,6 +36,7 @@ public class GameFlowController : MonoBehaviour
     [SerializeField] private CanvasGroup _winScreen;
     [SerializeField] private CanvasGroup _loseScreen;
     [SerializeField] private float _screenFadeDuration = 1f;
+    [SerializeField] private float _restartDelay = 3f;
 
     private PlayerModel _playerModel;
     private PlayerConfig _playerConfig;
@@ -131,6 +133,15 @@ public class GameFlowController : MonoBehaviour
         CanvasGroup screen = won ? _winScreen : _loseScreen;
         screen.gameObject.SetActive(true);
         screen.DOFade(1f, _screenFadeDuration);
+
+        StartCoroutine(RestartAfterDelay());
+    }
+
+    private IEnumerator RestartAfterDelay()
+    {
+        yield return new WaitForSeconds(_restartDelay);
+        DOTween.KillAll();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private void OnDisable()

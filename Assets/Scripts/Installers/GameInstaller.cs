@@ -13,6 +13,7 @@ namespace Installers
         [SerializeField] private InputController _inputController;
         [SerializeField] private GameFlowController _gameFlowController;
         [SerializeField] private FearAttractionManager _fearAttractionManager;
+        [SerializeField] private InspectionFeedbackView _inspectionFeedbackView;
 
         public override void InstallBindings()
         {
@@ -23,6 +24,7 @@ namespace Installers
             Container.Bind<InputController>().FromInstance(_inputController).AsSingle();
             Container.Bind<GameFlowController>().FromInstance(_gameFlowController).AsSingle();
             Container.Bind<FearAttractionManager>().FromInstance(_fearAttractionManager).AsSingle();
+            Container.Bind<InspectionFeedbackView>().FromInstance(_inspectionFeedbackView).AsSingle();
         }
     }
 }

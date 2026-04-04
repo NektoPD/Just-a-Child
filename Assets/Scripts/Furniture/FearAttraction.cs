@@ -19,10 +19,14 @@ namespace Furniture
         [SerializeField] private float _shakeDuration = 0.5f;
         [SerializeField] private float _shakeInterval = 2f;
         [SerializeField] private float _fearReductionOnInvestigate = 15f;
+        [SerializeField] private FearDecreaseArea _linkedDecreaseArea;
+
+        public FearDecreaseArea LinkedDecreaseArea => _linkedDecreaseArea;
 
         private PlayerModel _playerModel;
         private IPlayerView _playerView;
         private InputController _inputController;
+        private InspectionFeedbackView _feedbackView;
         private Coroutine _fearCoroutine;
         private Tween _shakeTween;
         private Vector3 _originalPosition;
@@ -33,11 +37,12 @@ namespace Furniture
         public event Action OnInvestigated;
 
         [Inject]
-        public void Construct(PlayerModel playerModel, IPlayerView playerView, InputController inputController)
+        public void Construct(PlayerModel playerModel, IPlayerView playerView, InputController inputController, InspectionFeedbackView feedbackView)
         {
             _playerModel = playerModel;
             _playerView = playerView;
             _inputController = inputController;
+            _feedbackView = feedbackView;
         }
 
         private void Awake()
@@ -52,6 +57,8 @@ namespace Furniture
                 if (_playerInRange && IsActive)
                     Investigate();
             });
+
+            _linkedDecreaseArea = GetComponentInChildren<FearDecreaseArea>();
         }
 
         public void Activate()
@@ -74,6 +81,7 @@ namespace Furniture
             if (!IsActive) return;
             Deactivate();
             _playerModel.DecreaseFearBy(_fearReductionOnInvestigate);
+            _feedbackView.PlaySuccess();
             OnInvestigated?.Invoke();
         }
 

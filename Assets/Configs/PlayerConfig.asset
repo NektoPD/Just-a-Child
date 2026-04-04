@@ -17,4 +17,4 @@ MonoBehaviour:
   <FearIncreaseValue>k__BackingField: 5
   <FearIncreaseInterval>k__BackingField: 7
   <FearDecreaseCooldown>k__BackingField: 5
-  <InitialFearDelay>k__BackingField: 10
+  <InitialFearDelay>k__BackingField: 5

@@ -32,14 +32,23 @@ namespace Furniture
 
         [SerializeField] private float _lightDuration = 3f;
 
+        [Header("Attract Flicker")]
+        [SerializeField] private float _activationDelay = 30f;
+        [SerializeField] private float _reloadDelay = 20f;
+        [SerializeField] private float _attractMinIntensity = 0.1f;
+        [SerializeField] private float _attractMaxIntensity = 0.6f;
+        [SerializeField] private float _attractFlickerSpeed = 0.3f;
+
         private CircleCollider2D _circleCollider2D;
         private PlayerFearController _playerFearController;
 
-        [SerializeField] private bool _isAvailable;
+        private bool _isAvailable;
         private Coroutine _flickerCoroutine;
+        private Coroutine _attractCoroutine;
         private Tween _innerRadiusTween;
         private Tween _outerRadiusTween;
         private bool _isLightEnabled;
+        private bool _isAttracting;
 
         [Inject]
         public void Construct(PlayerFearController playerFearController)
@@ -55,6 +64,51 @@ namespace Furniture
             _light2D.pointLightInnerRadius = _innerLightStartValue;
             _light2D.pointLightOuterRadius = _outerLightStartValue;
             _isLightEnabled = false;
+            _isAvailable = false;
+        }
+
+        private void Start()
+        {
+            StartCoroutine(ActivationDelayCoroutine());
+        }
+
+        private IEnumerator ActivationDelayCoroutine()
+        {
+            yield return new WaitForSeconds(_activationDelay);
+            _isAvailable = true;
+            StartAttractFlicker();
+        }
+
+        private void StartAttractFlicker()
+        {
+            if (_attractCoroutine != null)
+                StopCoroutine(_attractCoroutine);
+
+            _isAttracting = true;
+            _light2D.enabled = true;
+            _light2D.pointLightInnerRadius = _innerLightStartValue;
+            _light2D.pointLightOuterRadius = _outerLightStartValue;
+            _attractCoroutine = StartCoroutine(AttractFlickerCoroutine());
+        }
+
+        private void StopAttractFlicker()
+        {
+            _isAttracting = false;
+            if (_attractCoroutine != null)
+            {
+                StopCoroutine(_attractCoroutine);
+                _attractCoroutine = null;
+            }
+        }
+
+        private IEnumerator AttractFlickerCoroutine()
+        {
+            var wait = new WaitForSeconds(_attractFlickerSpeed);
+            while (_isAttracting)
+            {
+                _light2D.intensity = Random.Range(_attractMinIntensity, _attractMaxIntensity);
+                yield return wait;
+            }
         }
 
         private void OnDestroy()
@@ -63,6 +117,8 @@ namespace Furniture
             _outerRadiusTween?.Kill();
             if (_flickerCoroutine != null)
                 StopCoroutine(_flickerCoroutine);
+            if (_attractCoroutine != null)
+                StopCoroutine(_attractCoroutine);
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -70,6 +126,7 @@ namespace Furniture
             if (_playerFearController == null || !_isAvailable)
                 return;
 
+            StopAttractFlicker();
             EnableLight();
             _isLightEnabled = true;
 
@@ -84,8 +141,6 @@ namespace Furniture
 
             if (_isLightEnabled)
             {
-                Debug.Log("exit");
-                
                 _playerFearController.StartIncreasingFear();
                 _playerFearController.StopDecreaseFearWithCooldown();
                 
@@ -140,6 +195,14 @@ namespace Furniture
             _isLightEnabled = false;
 
             _isAvailable = false;
+            StartCoroutine(ReloadCoroutine());
+        }
+
+        private IEnumerator ReloadCoroutine()
+        {
+            yield return new WaitForSeconds(_reloadDelay);
+            _isAvailable = true;
+            StartAttractFlicker();
         }
     }
 }
