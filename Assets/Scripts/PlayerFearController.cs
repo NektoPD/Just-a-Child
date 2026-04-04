@@ -64,6 +64,8 @@ public class PlayerFearController : MonoBehaviour
     
     private IEnumerator FearIncreaseCoroutine()
     {
+        yield return new WaitForSeconds(_playerConfig.InitialFearDelay);
+        
         WaitForSeconds interval = new WaitForSeconds(_playerConfig.FearIncreaseInterval);
 
         yield return interval;

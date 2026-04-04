@@ -8,4 +8,5 @@ public class PlayerConfig : ScriptableObject
     [field: SerializeField] public float FearIncreaseValue { get; private set; }
     [field: SerializeField] public float FearIncreaseInterval { get; private set; }
     [field: SerializeField] public float FearDecreaseCooldown { get; private set; }
+    [field: SerializeField] public float InitialFearDelay { get; private set; }
 }

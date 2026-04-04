@@ -1,17 +1,26 @@
 using System.Collections;
+using Cinemachine;
 using DG.Tweening;
 using Furniture;
 using UniRx;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using Zenject;
 
 public class GameFlowController : MonoBehaviour
 {
-    [Header("Camera Intro")]
-    [SerializeField] private Camera _mainCamera;
-    [SerializeField] private Transform _introCameraStart;
-    [SerializeField] private Transform _introCameraTarget;
-    [SerializeField] private float _introDuration = 3f;
+    [Header("Cinemachine")]
+    [SerializeField] private CinemachineVirtualCamera _introVCam;
+    [SerializeField] private CinemachineVirtualCamera _playerVCam;
+
+    [Header("Intro Text")]
+    [SerializeField] private IntroTextView _introTextView;
+
+    [Header("Lighting")]
+    [SerializeField] private Light2D _globalLight;
+    [SerializeField] private float _introLightIntensity = 0.3f;
+    [SerializeField] private float _gameLightIntensity = 0.15f;
+    [SerializeField] private float _lightTransitionDuration = 1.5f;
 
     [Header("Game Timer")]
     [SerializeField] private float _gameDuration = 300f;
@@ -42,6 +51,12 @@ public class GameFlowController : MonoBehaviour
         _fearAttractionManager = fearAttractionManager;
     }
 
+    private void Awake()
+    {
+        _introVCam.Priority = 20;
+        _playerVCam.Priority = 0;
+    }
+
     private void Start()
     {
         _movementController.enabled = false;
@@ -52,15 +67,17 @@ public class GameFlowController : MonoBehaviour
         _loseScreen.alpha = 0f;
         _loseScreen.gameObject.SetActive(false);
 
-        _mainCamera.transform.position = _introCameraStart.position;
+        if (_globalLight != null)
+            _globalLight.intensity = _introLightIntensity;
 
-        StartCoroutine(IntroSequence());
+        _introTextView.Play(OnIntroTextFinished);
     }
 
-    private IEnumerator IntroSequence()
+    private void OnIntroTextFinished()
     {
-        _mainCamera.transform.DOMove(_introCameraTarget.position, _introDuration).SetEase(Ease.InOutSine);
-        yield return new WaitForSeconds(_introDuration);
+        _introTextView.Hide();
+        _introVCam.Priority = 0;
+        _playerVCam.Priority = 20;
 
         StartGame();
     }
@@ -71,6 +88,10 @@ public class GameFlowController : MonoBehaviour
 
         _fearMeterRoot.DOFade(1f, 0.5f);
         _timerView.Show();
+
+        if (_globalLight != null)
+            DOTween.To(() => _globalLight.intensity, x => _globalLight.intensity = x,
+                _gameLightIntensity, _lightTransitionDuration);
 
         _fearController.StartIncreasingFear();
         _fearAttractionManager.StartSpawning();

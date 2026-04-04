@@ -30,6 +30,7 @@ namespace Furniture
         private IDisposable _interactionSub;
 
         public bool IsActive { get; private set; }
+        public event Action OnInvestigated;
 
         [Inject]
         public void Construct(PlayerModel playerModel, IPlayerView playerView, InputController inputController)
@@ -73,6 +74,7 @@ namespace Furniture
             if (!IsActive) return;
             Deactivate();
             _playerModel.DecreaseFearBy(_fearReductionOnInvestigate);
+            OnInvestigated?.Invoke();
         }
 
         public void Deactivate()

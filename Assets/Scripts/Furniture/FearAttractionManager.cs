@@ -11,15 +11,26 @@ namespace Furniture
         [SerializeField] private float _maxActivationInterval = 25f;
 
         private Coroutine _spawningCoroutine;
+        private bool _isRunning;
 
         public void StartSpawning()
         {
             StopSpawning();
-            _spawningCoroutine = StartCoroutine(SpawningCoroutine());
+            _isRunning = true;
+
+            foreach (var attraction in _attractions)
+                attraction.OnInvestigated += OnAttractionInvestigated;
+
+            _spawningCoroutine = StartCoroutine(ActivateNextAfterDelay());
         }
 
         public void StopSpawning()
         {
+            _isRunning = false;
+
+            foreach (var attraction in _attractions)
+                attraction.OnInvestigated -= OnAttractionInvestigated;
+
             if (_spawningCoroutine != null)
             {
                 StopCoroutine(_spawningCoroutine);
@@ -36,17 +47,22 @@ namespace Furniture
             }
         }
 
-        private IEnumerator SpawningCoroutine()
+        private void OnAttractionInvestigated()
         {
-            while (true)
-            {
-                float delay = Random.Range(_minActivationInterval, _maxActivationInterval);
-                yield return new WaitForSeconds(delay);
+            if (!_isRunning) return;
+            _spawningCoroutine = StartCoroutine(ActivateNextAfterDelay());
+        }
 
-                FearAttraction candidate = GetRandomInactive();
-                if (candidate != null)
-                    candidate.Activate();
-            }
+        private IEnumerator ActivateNextAfterDelay()
+        {
+            float delay = Random.Range(_minActivationInterval, _maxActivationInterval);
+            yield return new WaitForSeconds(delay);
+
+            FearAttraction candidate = GetRandomInactive();
+            if (candidate != null)
+                candidate.Activate();
+
+            _spawningCoroutine = null;
         }
 
         private FearAttraction GetRandomInactive()
