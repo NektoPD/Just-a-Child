@@ -667,7 +667,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 349fd3308f2a4a0f8f9d3868a1e168b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Furniture.FearAttraction
-  _audioSource: {fileID: 0}
+  _audioSource: {fileID: 1800964535}
+  _sounds:
+  - {fileID: 8300000, guid: d7900a80df0874218b2bc4537acc2ede, type: 3}
+  - {fileID: 8300000, guid: b3855831b62154f16840f89882051cdb, type: 3}
+  - {fileID: 8300000, guid: 590d134e6dab7493bbb4dd41fb1094f2, type: 3}
   _spriteRenderer: {fileID: 175508321}
   _fearPerTick: 2
   _tickInterval: 3
@@ -9114,7 +9118,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 349fd3308f2a4a0f8f9d3868a1e168b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Furniture.FearAttraction
-  _audioSource: {fileID: 0}
+  _audioSource: {fileID: 1800964535}
+  _sounds:
+  - {fileID: 8300000, guid: d7900a80df0874218b2bc4537acc2ede, type: 3}
+  - {fileID: 8300000, guid: b3855831b62154f16840f89882051cdb, type: 3}
+  - {fileID: 8300000, guid: 590d134e6dab7493bbb4dd41fb1094f2, type: 3}
   _spriteRenderer: {fileID: 1027310311}
   _fearPerTick: 2
   _tickInterval: 3
@@ -10527,7 +10535,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 349fd3308f2a4a0f8f9d3868a1e168b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Furniture.FearAttraction
-  _audioSource: {fileID: 0}
+  _audioSource: {fileID: 1800964535}
+  _sounds:
+  - {fileID: 8300000, guid: d7900a80df0874218b2bc4537acc2ede, type: 3}
+  - {fileID: 8300000, guid: b3855831b62154f16840f89882051cdb, type: 3}
+  - {fileID: 8300000, guid: 590d134e6dab7493bbb4dd41fb1094f2, type: 3}
   _spriteRenderer: {fileID: 1433453597}
   _fearPerTick: 2
   _tickInterval: 3
@@ -10732,7 +10744,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: E to go to inspect
+  m_text: E to inspect
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a7f3b02a98cfc03458ec520cdcf9e124, type: 2}
   m_sharedMaterial: {fileID: -5218202830042008553, guid: a7f3b02a98cfc03458ec520cdcf9e124, type: 2}
@@ -13041,7 +13053,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 349fd3308f2a4a0f8f9d3868a1e168b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Furniture.FearAttraction
-  _audioSource: {fileID: 0}
+  _audioSource: {fileID: 1800964535}
+  _sounds:
+  - {fileID: 8300000, guid: d7900a80df0874218b2bc4537acc2ede, type: 3}
+  - {fileID: 8300000, guid: b3855831b62154f16840f89882051cdb, type: 3}
+  - {fileID: 8300000, guid: 590d134e6dab7493bbb4dd41fb1094f2, type: 3}
   _spriteRenderer: {fileID: 1672793433}
   _fearPerTick: 2
   _tickInterval: 3
@@ -14473,6 +14489,135 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &1800964534
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1800964536}
+  - component: {fileID: 1800964535}
+  m_Layer: 0
+  m_Name: AudioSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!82 &1800964535
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1800964534}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &1800964536
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1800964534}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.79, y: 1.32, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1810482752
 GameObject:
   m_ObjectHideFlags: 0
@@ -16937,7 +17082,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 349fd3308f2a4a0f8f9d3868a1e168b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Furniture.FearAttraction
-  _audioSource: {fileID: 0}
+  _audioSource: {fileID: 1800964535}
+  _sounds:
+  - {fileID: 8300000, guid: d7900a80df0874218b2bc4537acc2ede, type: 3}
+  - {fileID: 8300000, guid: b3855831b62154f16840f89882051cdb, type: 3}
+  - {fileID: 8300000, guid: 590d134e6dab7493bbb4dd41fb1094f2, type: 3}
   _spriteRenderer: {fileID: 2145906344}
   _fearPerTick: 2
   _tickInterval: 3
@@ -17084,3 +17233,4 @@ SceneRoots:
   - {fileID: 1822593074}
   - {fileID: 1832269308}
   - {fileID: 1640722902}
+  - {fileID: 1800964536}

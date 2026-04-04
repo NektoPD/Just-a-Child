@@ -5,6 +5,7 @@ using Player;
 using UniRx;
 using UnityEngine;
 using Zenject;
+using Random = UnityEngine.Random;
 
 namespace Furniture
 {
@@ -12,6 +13,7 @@ namespace Furniture
     public class FearAttraction : MonoBehaviour
     {
         [SerializeField] private AudioSource _audioSource;
+        [SerializeField] private AudioClip[] _sounds;
         [SerializeField] private SpriteRenderer _spriteRenderer;
         [SerializeField] private float _fearPerTick = 2f;
         [SerializeField] private float _tickInterval = 3f;
@@ -66,8 +68,9 @@ namespace Furniture
             if (IsActive) return;
             IsActive = true;
 
-            if (_audioSource != null)
+            if (_audioSource != null && _sounds.Length > 0)
             {
+                _audioSource.clip = _sounds[Random.Range(0, _sounds.Length)];
                 _audioSource.loop = true;
                 _audioSource.Play();
             }
