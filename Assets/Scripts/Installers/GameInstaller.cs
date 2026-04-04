@@ -7,12 +7,15 @@ namespace Installers
     public class GameInstaller : MonoInstaller
     {
         [SerializeField] private PlayerView _playerView;
+        [SerializeField] private PlayerConfig _playerConfig;
+        [SerializeField] private PlayerFearController _playerFearController;
 
         public override void InstallBindings()
         {
             Container.Bind<IPlayerView>().FromInstance(_playerView).AsSingle();
             Container.Bind<PlayerModel>().AsSingle().NonLazy();
-            
+            Container.Bind<PlayerConfig>().FromInstance(_playerConfig).AsSingle();
+            Container.Bind<PlayerFearController>().FromInstance(_playerFearController).AsSingle();
         }
     }
 }

@@ -5,19 +5,27 @@ using Unity.Mathematics;
 using Unity.Mathematics.Geometry;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 using Math = System.Math;
 
-public class FearMeterView : MonoBehaviour
+public class FearMeterView : MonoBehaviour, IInitializable
 {
     [SerializeField] private Image _fillBar;
     [SerializeField] private AnimatedText _animatedText;
     [SerializeField] private float _fillBarAnimationDuration = 0.3f;
 
     private float _maxTextValue;
+    private PlayerConfig _playerConfig;
 
-    public void Initialize(float maxTextValue)
+    [Inject]
+    public void Construct(PlayerConfig playerConfig)
     {
-        _maxTextValue = maxTextValue;
+        _playerConfig = playerConfig;
+    }
+    
+    public void Initialize()
+    {
+        _maxTextValue = _playerConfig.MaxFearValue;
         _animatedText.SetMaxValue(_maxTextValue);
     }
 

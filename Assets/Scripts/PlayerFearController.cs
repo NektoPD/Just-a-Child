@@ -9,28 +9,28 @@ using Zenject;
 public class PlayerFearController : MonoBehaviour
 {
     [SerializeField] private FearMeterView _fearMeterView;
-    [SerializeField] private PlayerConfig _playerConfig;
     [SerializeField] private InputController _inputController;
-    
+
+    private PlayerConfig _playerConfig;
     private float _currentFearLevel;
     private PlayerModel _playerModel;
     private Coroutine _fearIncreaseCoroutine;
+    private Coroutine _fearDecreaseCoroutine;
     private readonly CompositeDisposable _disposables = new CompositeDisposable();
 
     [Inject]
-    public void Construct(PlayerModel fearModel)
+    public void Construct(PlayerModel fearModel, PlayerConfig playerConfig)
     {
         _playerModel = fearModel;
+        _playerConfig = playerConfig;
     }
 
     private void Start()
     {
-        _playerModel.Initialize(_playerConfig);
         _playerModel.CurrentFearLevel.Subscribe(_fearMeterView.UpdateVisuals).AddTo(_disposables);
-        
+
         _fearMeterView.UpdateVisuals(_playerModel.CurrentFearLevel.Value);
-        _fearMeterView.Initialize(_playerConfig.MaxFearValue);
-        
+
         _fearIncreaseCoroutine = StartCoroutine(FearIncreaseCoroutine());
 
         _inputController.OnInteractionPerformed.Subscribe(_ => _playerModel.DecreaseFear()).AddTo(_disposables);
@@ -44,6 +44,8 @@ public class PlayerFearController : MonoBehaviour
             yield return new WaitForSeconds(_playerConfig.FearIncreaseInterval);
         }
     }
+    
+    
 
     private void OnDisable()
     {

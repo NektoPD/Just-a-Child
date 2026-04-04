@@ -8,11 +8,16 @@ public class PlayerModel : IInitializable
     private PlayerConfig _playerConfig;
     
     private ReactiveProperty<float> _currentFearLevel = new ReactiveProperty<float>();
+
+    public PlayerModel(PlayerConfig playerConfig)
+    {
+        _playerConfig = playerConfig;
+    }
+    
     public IReadOnlyReactiveProperty<float> CurrentFearLevel => _currentFearLevel;
 
     public void Initialize()
     {
-        _playerConfig = playerConfig;
         _currentFearLevel.Value = 0;
     }
 
