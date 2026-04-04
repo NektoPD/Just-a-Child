@@ -28,7 +28,7 @@ namespace Clicker
         {
             if (Mathf.Approximately(_currentValue, newValue) && animate)
             {
-                AnimateText();
+                _text.text = _hasMaxValue ? $"{newValue:F0}/{_maxValue:F0}" : newValue.ToString();
                 return;
             }
 

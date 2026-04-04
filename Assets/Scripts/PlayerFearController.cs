@@ -30,22 +30,61 @@ public class PlayerFearController : MonoBehaviour
         _playerModel.CurrentFearLevel.Subscribe(_fearMeterView.UpdateVisuals).AddTo(_disposables);
 
         _fearMeterView.UpdateVisuals(_playerModel.CurrentFearLevel.Value);
-
-        _fearIncreaseCoroutine = StartCoroutine(FearIncreaseCoroutine());
-
+        
+        StartIncreasingFear();
+        
         _inputController.OnInteractionPerformed.Subscribe(_ => _playerModel.DecreaseFear()).AddTo(_disposables);
     }
 
+    public void StartIncreasingFear()
+    {
+        _fearIncreaseCoroutine = StartCoroutine(FearIncreaseCoroutine());
+    }
+
+    public void StopIncreasingFear()
+    {
+        if(_fearIncreaseCoroutine == null)
+            return;
+        
+        StopCoroutine(_fearIncreaseCoroutine);
+        _fearIncreaseCoroutine = null;
+    }
+
+    public void StartDecreaseFearWithCooldown()
+    {
+        _fearDecreaseCoroutine = StartCoroutine(FearDecreaseCoroutine());
+    }
+
+    public void StopDecreaseFearWithCooldown()
+    {
+        if(_fearDecreaseCoroutine == null)
+            return;
+        
+        StopCoroutine(_fearDecreaseCoroutine);
+        _fearDecreaseCoroutine = null;
+    }
+    
     private IEnumerator FearIncreaseCoroutine()
     {
+        WaitForSeconds interval = new WaitForSeconds(_playerConfig.FearIncreaseInterval);
+
+        yield return interval;
+        
         while (true)
         {
             _playerModel.IncreaseFear();
-            yield return new WaitForSeconds(_playerConfig.FearIncreaseInterval);
+            yield return interval;
         }
     }
-    
-    
+
+    private IEnumerator FearDecreaseCoroutine()
+    {
+        while (true)
+        {
+            _playerModel.DecreaseFear();
+            yield return new WaitForSeconds(_playerConfig.FearDecreaseCooldown);
+        }
+    }
 
     private void OnDisable()
     {

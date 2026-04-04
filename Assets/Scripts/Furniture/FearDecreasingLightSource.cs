@@ -6,7 +6,7 @@ using Zenject;
 namespace Furniture
 {
     [RequireComponent(typeof(CircleCollider2D))]
-    public class LightSource : MonoBehaviour
+    public class FearDecreasingLightSource : MonoBehaviour
     {
         [SerializeField] private Light2D _light2D;
 
@@ -34,7 +34,17 @@ namespace Furniture
             if(_playerFearController == null)
                 return;
             
+            _playerFearController.StopIncreasingFear();
+            _playerFearController.StartDecreaseFearWithCooldown();
+        }
+
+        private void OnTriggerExit2D(Collider2D other)
+        {
+            if(_playerFearController == null)
+                return;
             
+            _playerFearController.StartIncreasingFear();
+            _playerFearController.StopDecreaseFearWithCooldown();
         }
     }
 }

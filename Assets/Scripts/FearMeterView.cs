@@ -22,11 +22,13 @@ public class FearMeterView : MonoBehaviour, IInitializable
     {
         _playerConfig = playerConfig;
     }
-    
+
+    [Inject]
     public void Initialize()
     {
         _maxTextValue = _playerConfig.MaxFearValue;
         _animatedText.SetMaxValue(_maxTextValue);
+        _animatedText.SetValue(0);
     }
 
     public void UpdateVisuals(float value)

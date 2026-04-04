@@ -18,7 +18,6 @@ namespace Furniture
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            Debug.Log("collision entered");
             _playerView.ShowInteraction(true);
         }
 
