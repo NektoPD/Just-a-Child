@@ -37,6 +37,7 @@ public class GameFlowController : MonoBehaviour
     [SerializeField] private CanvasGroup _loseScreen;
     [SerializeField] private float _screenFadeDuration = 1f;
     [SerializeField] private float _restartDelay = 3f;
+    [SerializeField] private CanvasGroup _controlsHint;
 
     private PlayerModel _playerModel;
     private PlayerConfig _playerConfig;
@@ -69,6 +70,12 @@ public class GameFlowController : MonoBehaviour
         _loseScreen.alpha = 0f;
         _loseScreen.gameObject.SetActive(false);
 
+        if (_controlsHint != null)
+        {
+            _controlsHint.alpha = 0f;
+            _controlsHint.gameObject.SetActive(false);
+        }
+
         if (_globalLight != null)
             _globalLight.intensity = _introLightIntensity;
 
@@ -90,6 +97,13 @@ public class GameFlowController : MonoBehaviour
 
         _fearMeterRoot.DOFade(1f, 0.5f);
         _timerView.Show();
+
+        if (_controlsHint != null)
+        {
+            _controlsHint.gameObject.SetActive(true);
+            _controlsHint.DOFade(1f, 0.3f).OnComplete(() =>
+                _controlsHint.DOFade(0f, 0.5f).SetDelay(2f));
+        }
 
         if (_globalLight != null)
             DOTween.To(() => _globalLight.intensity, x => _globalLight.intensity = x,
