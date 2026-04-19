@@ -9,6 +9,10 @@ public class RandomEncounterManager : MonoBehaviour
     [SerializeField] private Transform _playerTransform;
     [SerializeField] private float _minSpawnInterval = 20f;
     [SerializeField] private float _maxSpawnInterval = 45f;
+    [SerializeField] private SpeechBubbleView _playerSpeechBubble;
+    [SerializeField, TextArea(2, 5)] private string _ghostReactionText = "What was that?!";
+    [SerializeField] private AudioSource _playerAudioSource;
+    [SerializeField] private AudioClip _ghostReactionSound;
 
     private GhostCreature _currentGhost;
     private Coroutine _spawnCoroutine;
@@ -55,8 +59,28 @@ public class RandomEncounterManager : MonoBehaviour
         {
             _currentGhost = _container.InstantiatePrefabForComponent<GhostCreature>(_ghostPrefab);
             _currentGhost.SetPlayerTransform(_playerTransform);
+            _currentGhost.OnFled += OnGhostFled;
         }
 
         _currentGhost.Spawn(position);
     }
+<<<<<<< Updated upstream
 }
+=======
+
+    private void OnGhostFled()
+    {
+        if (_playerAudioSource != null && _ghostReactionSound != null)
+            _playerAudioSource.PlayOneShot(_ghostReactionSound);
+
+        if (_playerSpeechBubble != null && !string.IsNullOrEmpty(_ghostReactionText))
+            _playerSpeechBubble.ShowText(_ghostReactionText, null);
+    }
+
+    private void OnDestroy()
+    {
+        if (_currentGhost != null)
+            _currentGhost.OnFled -= OnGhostFled;
+    }
+}
+>>>>>>> Stashed changes

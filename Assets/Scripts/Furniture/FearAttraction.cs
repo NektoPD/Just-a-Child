@@ -23,6 +23,16 @@ namespace Furniture
         [SerializeField] private float _fearReductionOnInvestigate = 15f;
         [SerializeField] private FearDecreaseArea _linkedDecreaseArea;
 
+        [Header("Sprite Animation")]
+        [SerializeField] private SpriteAnimator _spriteAnimator;
+        [SerializeField] private Sprite[] _animationSprites;
+        [SerializeField] private float _animationFrameDuration = 0.15f;
+
+        [Header("Slide Motion")]
+        [SerializeField] private bool _useSlideMotion;
+        [SerializeField] private float _slideDistance = 0.3f;
+        [SerializeField] private float _slideDuration = 1.5f;
+
         public FearDecreaseArea LinkedDecreaseArea => _linkedDecreaseArea;
 
         private PlayerModel _playerModel;
@@ -31,6 +41,7 @@ namespace Furniture
         private InspectionFeedbackView _feedbackView;
         private Coroutine _fearCoroutine;
         private Tween _shakeTween;
+        private Tween _slideTween;
         private Vector3 _originalPosition;
         private bool _playerInRange;
         private IDisposable _interactionSub;
@@ -75,7 +86,20 @@ namespace Furniture
                 _audioSource.Play();
             }
 
-            StartShakeLoop();
+            bool hasSpriteAnim = _spriteAnimator != null && _animationSprites != null && _animationSprites.Length > 0;
+            if (hasSpriteAnim)
+            {
+                _spriteAnimator.Play(_animationSprites, _animationFrameDuration);
+            }
+            else if (_useSlideMotion)
+            {
+                StartSlideLoop();
+            }
+            else
+            {
+                StartShakeLoop();
+            }
+
             _fearCoroutine = StartCoroutine(FearTickCoroutine());
         }
 
@@ -96,7 +120,11 @@ namespace Furniture
             if (_audioSource != null)
                 _audioSource.Stop();
 
+            if (_spriteAnimator != null)
+                _spriteAnimator.Stop();
+
             _shakeTween?.Kill();
+            _slideTween?.Kill();
             transform.localPosition = _originalPosition;
 
             if (_fearCoroutine != null)
@@ -117,6 +145,14 @@ namespace Furniture
                 .SetDelay(_shakeInterval);
         }
 
+        private void StartSlideLoop()
+        {
+            _slideTween?.Kill();
+            _slideTween = transform.DOLocalMoveX(_originalPosition.x + _slideDistance, _slideDuration)
+                .SetLoops(-1, LoopType.Yoyo)
+                .SetEase(Ease.InOutSine);
+        }
+
         private IEnumerator FearTickCoroutine()
         {
             var wait = new WaitForSeconds(_tickInterval);
@@ -130,13 +166,21 @@ namespace Furniture
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (!IsActive) return;
+            if (!IsActive || !other.CompareTag("Player")) return;
             _playerInRange = true;
             _playerView.ShowInteraction(true);
+
+            if (_useSlideMotion && _slideTween != null)
+            {
+                _slideTween.Kill();
+                _slideTween = null;
+                transform.DOLocalMove(_originalPosition, 0.3f);
+            }
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
+            if (!other.CompareTag("Player")) return;
             _playerInRange = false;
             _playerView.ShowInteraction(false);
         }
@@ -144,6 +188,7 @@ namespace Furniture
         private void OnDestroy()
         {
             _shakeTween?.Kill();
+            _slideTween?.Kill();
             _interactionSub?.Dispose();
             if (_fearCoroutine != null)
                 StopCoroutine(_fearCoroutine);

@@ -48,12 +48,14 @@ namespace Furniture
 
         private void OnTriggerEnter2D(Collider2D other)
         {
+            if (!other.CompareTag("Player")) return;
             _playerInRange = true;
             _playerView.ShowInteraction(true);
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
+            if (!other.CompareTag("Player")) return;
             _playerInRange = false;
             _playerView.ShowInteraction(false);
         }

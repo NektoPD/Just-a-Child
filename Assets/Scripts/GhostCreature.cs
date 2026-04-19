@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using Zenject;
@@ -11,6 +12,8 @@ public class GhostCreature : MonoBehaviour
     [SerializeField] private float _fleeDistance = 5f;
     [SerializeField] private float _detectRadius = 2.5f;
     [SerializeField] private float _fearOnCollision = 20f;
+    [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private AudioClip _fleeSound;
 
     private static readonly int Walking = Animator.StringToHash("Walking");
 
@@ -18,6 +21,8 @@ public class GhostCreature : MonoBehaviour
     private PlayerModel _playerModel;
     private bool _isActive;
     private bool _isFleeing;
+
+    public event Action OnFled;
 
     [Inject]
     public void Construct(PlayerModel playerModel)
@@ -53,6 +58,10 @@ public class GhostCreature : MonoBehaviour
     private IEnumerator FleeCoroutine()
     {
         _isFleeing = true;
+
+        if (_audioSource != null && _fleeSound != null)
+            _audioSource.PlayOneShot(_fleeSound);
+
         Vector3 dir = (transform.position - _playerTransform.position).normalized;
         Vector3 target = transform.position + dir * _fleeDistance;
 
@@ -74,6 +83,7 @@ public class GhostCreature : MonoBehaviour
         _animator.SetFloat(Walking, 0f);
         _isActive = false;
         gameObject.SetActive(false);
+        OnFled?.Invoke();
     }
 
     private void SetAlpha(float a)

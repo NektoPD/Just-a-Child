@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using DG.Tweening;
+using Player;
 using TMPro;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ public class SpeechBubbleView : MonoBehaviour
     [SerializeField] private float _fadeDuration = 0.5f;
     [SerializeField] private float _delayBetweenSegments = 1.5f;
     [SerializeField] private float _delayAfterText = 2f;
+    [SerializeField] private PlayerView _playerViewToSuppress;
 
     private Coroutine _coroutine;
 
@@ -42,10 +44,18 @@ public class SpeechBubbleView : MonoBehaviour
         }
         _canvasGroup.DOKill();
         _canvasGroup.alpha = 0f;
+        SetSuppressed(false);
+    }
+
+    private void SetSuppressed(bool suppressed)
+    {
+        if (_playerViewToSuppress != null)
+            _playerViewToSuppress.SetInteractionSuppressed(suppressed);
     }
 
     private IEnumerator ShowTextCoroutine(string message, Action onComplete)
     {
+        SetSuppressed(true);
         _text.text = "";
         _canvasGroup.DOKill();
         _canvasGroup.DOFade(1f, _fadeDuration);
@@ -62,12 +72,14 @@ public class SpeechBubbleView : MonoBehaviour
         _canvasGroup.DOFade(0f, _fadeDuration);
         yield return new WaitForSeconds(_fadeDuration);
 
+        SetSuppressed(false);
         _coroutine = null;
         onComplete?.Invoke();
     }
 
     private IEnumerator ShowSegmentsCoroutine(string[] segments, Action onComplete)
     {
+        SetSuppressed(true);
         _canvasGroup.DOKill();
         _canvasGroup.DOFade(1f, _fadeDuration);
         yield return new WaitForSeconds(_fadeDuration);
@@ -92,6 +104,7 @@ public class SpeechBubbleView : MonoBehaviour
         _canvasGroup.DOFade(0f, _fadeDuration);
         yield return new WaitForSeconds(_fadeDuration);
 
+        SetSuppressed(false);
         _coroutine = null;
         onComplete?.Invoke();
     }

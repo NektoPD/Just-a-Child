@@ -22,10 +22,10 @@ public class SpriteAnimator : MonoBehaviour
 
         if (_playing)
         {
-            if (!_image)
+            if (_image)
                 _image.sprite = _sprites[0];
 
-            if (!_spriteRenderer)
+            if (_spriteRenderer)
                 _spriteRenderer.sprite = _sprites[0];
         }
     }
@@ -45,10 +45,10 @@ public class SpriteAnimator : MonoBehaviour
             _timer -= _frameDuration;
             _currentFrame = (_currentFrame + 1) % _sprites.Length;
 
-            if (!_image)
+            if (_image)
                 _image.sprite = _sprites[_currentFrame];
             
-            if(!_spriteRenderer)
+            if(_spriteRenderer)
                 _spriteRenderer.sprite = _sprites[_currentFrame];
         }
     }

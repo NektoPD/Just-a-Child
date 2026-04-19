@@ -60,6 +60,10 @@ public class GameFlowController : MonoBehaviour
     [Header("Random Encounters")]
     [SerializeField] private RandomEncounterManager _encounterManager;
 
+    [Header("Win Cutscene")]
+    [SerializeField, TextArea(2, 5)] private string _winCutsceneText = "I survived the night!";
+    [SerializeField] private float _winLightIntensity = 1f;
+
     private PlayerModel _playerModel;
     private PlayerConfig _playerConfig;
     private FearAttractionManager _fearAttractionManager;
@@ -219,10 +223,31 @@ public class GameFlowController : MonoBehaviour
         if (_encounterManager != null)
             _encounterManager.StopEncounters();
 
-        CanvasGroup screen = won ? _winScreen : _loseScreen;
-        screen.gameObject.SetActive(true);
-        screen.DOFade(1f, _screenFadeDuration);
+        if (won)
+            StartCoroutine(WinCutscene());
+        else
+        {
+            _loseScreen.gameObject.SetActive(true);
+            _loseScreen.DOFade(1f, _screenFadeDuration);
+            StartCoroutine(RestartAfterDelay());
+        }
+    }
 
+    private IEnumerator WinCutscene()
+    {
+        if (_globalLight != null)
+            yield return DOTween.To(() => _globalLight.intensity, x => _globalLight.intensity = x,
+                _winLightIntensity, _lightTransitionDuration).WaitForCompletion();
+
+        if (_playerSpeechBubble != null && !string.IsNullOrEmpty(_winCutsceneText))
+        {
+            bool textDone = false;
+            _playerSpeechBubble.ShowText(_winCutsceneText, () => textDone = true);
+            yield return new WaitUntil(() => textDone);
+        }
+
+        _winScreen.gameObject.SetActive(true);
+        _winScreen.DOFade(1f, _screenFadeDuration);
         StartCoroutine(RestartAfterDelay());
     }
 

@@ -51,6 +51,7 @@ namespace Furniture
             _movementController.transform.position = SitPoint.position;
             _movementController.enabled = false;
             _playerModel.SetSitting(true);
+            _playerView.ShowInteraction(false);
             _decreaseCoroutine = StartCoroutine(FearDecreaseCoroutine());
         }
 
@@ -80,6 +81,7 @@ namespace Furniture
         {
             if (!other.CompareTag("Player")) return;
             _playerInRange = true;
+            _playerView.SetHintText("Hold E to sit");
             _playerView.ShowInteraction(true);
         }
 
