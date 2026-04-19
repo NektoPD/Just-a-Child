@@ -14,8 +14,13 @@ public class PlayerModel : IInitializable
         _playerConfig = playerConfig;
     }
     
+    private bool _isSitting;
+
     public IReadOnlyReactiveProperty<float> CurrentFearLevel => _currentFearLevel;
     public bool IsFearMaxed => _currentFearLevel.Value >= _playerConfig.MaxFearValue;
+    public bool IsSitting => _isSitting;
+
+    public void SetSitting(bool sitting) => _isSitting = sitting;
 
     public void Initialize()
     {

@@ -14,13 +14,28 @@ public class GameFlowController : MonoBehaviour
     [SerializeField] private CinemachineVirtualCamera _introVCam;
     [SerializeField] private CinemachineVirtualCamera _playerVCam;
 
-    [Header("Intro Text")]
-    [SerializeField] private IntroTextView _introTextView;
+    [Header("Fade")]
+    [SerializeField] private CanvasGroup _fadeOverlay;
+    [SerializeField] private float _fadeInDuration = 2f;
+    [SerializeField] private float _fadeOutDuration = 1f;
+
+    [Header("Intro Cutscene")]
+    [SerializeField] private CutsceneNPC _cutsceneNPC;
+    [SerializeField] private SittableObject _startingSeat;
+    [SerializeField] private float _cameraBlendWait = 2f;
+
+    [Header("Player Speech")]
+    [SerializeField] private SpeechBubbleView _playerSpeechBubble;
+    [SerializeField, TextArea(2, 5)] private string _firstFearAttractionText = "What was that sound?..";
+    [SerializeField, TextArea(2, 5)] private string _afterInvestigationText = "I need to stay calm..";
+
+    [Header("First Fear Attraction")]
+    [SerializeField] private FearAttraction _firstFearAttraction;
 
     [Header("Lighting")]
     [SerializeField] private Light2D _globalLight;
     [SerializeField] private float _introLightIntensity = 0.3f;
-    [SerializeField] private float _gameLightIntensity = 0.15f;
+    [SerializeField] private float _gameLightIntensity = 0.05f;
     [SerializeField] private float _lightTransitionDuration = 1.5f;
 
     [Header("Game Timer")]
@@ -38,6 +53,12 @@ public class GameFlowController : MonoBehaviour
     [SerializeField] private float _screenFadeDuration = 1f;
     [SerializeField] private float _restartDelay = 3f;
     [SerializeField] private CanvasGroup _controlsHint;
+
+    [Header("Sound Indicator")]
+    [SerializeField] private SoundDirectionIndicator _soundIndicator;
+
+    [Header("Random Encounters")]
+    [SerializeField] private RandomEncounterManager _encounterManager;
 
     private PlayerModel _playerModel;
     private PlayerConfig _playerConfig;
@@ -57,7 +78,7 @@ public class GameFlowController : MonoBehaviour
     private void Awake()
     {
         _introVCam.Priority = 20;
-        _playerVCam.Priority = 0;
+        _playerVCam.Priority = 10;
     }
 
     private void Start()
@@ -76,25 +97,67 @@ public class GameFlowController : MonoBehaviour
             _controlsHint.gameObject.SetActive(false);
         }
 
+        if (_fadeOverlay != null)
+            _fadeOverlay.alpha = 1f;
+
         if (_globalLight != null)
             _globalLight.intensity = _introLightIntensity;
 
-        _introTextView.Play(OnIntroTextFinished);
+        if (_startingSeat != null)
+            _movementController.transform.position = _startingSeat.SitPoint.position;
+
+        StartCoroutine(IntroSequence());
     }
 
-    private void OnIntroTextFinished()
+    private IEnumerator IntroSequence()
     {
-        _introTextView.Hide();
+        yield return _fadeOverlay.DOFade(0f, _fadeInDuration).WaitForCompletion();
+
         _introVCam.Priority = 0;
         _playerVCam.Priority = 20;
+        yield return new WaitForSeconds(_cameraBlendWait);
 
+        if (_cutsceneNPC != null)
+        {
+            bool cutsceneDone = false;
+            _cutsceneNPC.StartCutscene(() => cutsceneDone = true);
+            yield return new WaitUntil(() => cutsceneDone);
+        }
+
+        yield return _fadeOverlay.DOFade(1f, _fadeOutDuration).WaitForCompletion();
+        yield return new WaitForSeconds(2f);
+
+        if (_firstFearAttraction != null)
+            _firstFearAttraction.Activate();
+
+        yield return _fadeOverlay.DOFade(0f, _fadeInDuration).WaitForCompletion();
+
+        bool textDone = false;
+        _playerSpeechBubble.ShowText(_firstFearAttractionText, () => textDone = true);
+        yield return new WaitUntil(() => textDone);
+
+        _movementController.enabled = true;
+
+        if (_firstFearAttraction != null)
+        {
+            bool investigated = false;
+            void OnInvestigated() => investigated = true;
+            _firstFearAttraction.OnInvestigated += OnInvestigated;
+            yield return new WaitUntil(() => investigated);
+            _firstFearAttraction.OnInvestigated -= OnInvestigated;
+        }
+
+        _movementController.enabled = false;
+        textDone = false;
+        _playerSpeechBubble.ShowText(_afterInvestigationText, () => textDone = true);
+        yield return new WaitUntil(() => textDone);
+
+        _movementController.enabled = true;
         StartGame();
     }
 
     private void StartGame()
     {
-        _movementController.enabled = true;
-
         _fearMeterRoot.DOFade(1f, 0.5f);
         _timerView.Show();
 
@@ -111,6 +174,12 @@ public class GameFlowController : MonoBehaviour
 
         _fearController.StartIncreasingFear();
         _fearAttractionManager.StartSpawning();
+
+        if (_soundIndicator != null)
+            _soundIndicator.StartIndicating();
+
+        if (_encounterManager != null)
+            _encounterManager.StartEncounters();
 
         _remainingTime = _gameDuration;
         _gameRunning = true;
@@ -143,6 +212,12 @@ public class GameFlowController : MonoBehaviour
         _fearAttractionManager.StopSpawning();
         _fearAttractionManager.DeactivateAll();
         _movementController.enabled = false;
+
+        if (_soundIndicator != null)
+            _soundIndicator.StopIndicating();
+
+        if (_encounterManager != null)
+            _encounterManager.StopEncounters();
 
         CanvasGroup screen = won ? _winScreen : _loseScreen;
         screen.gameObject.SetActive(true);

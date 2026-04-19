@@ -108,6 +108,27 @@ namespace Furniture
             return count;
         }
 
+        public FearAttraction GetRandomActive()
+        {
+            int count = 0;
+            foreach (var a in _attractions)
+            {
+                if (a.IsActive) count++;
+            }
+            if (count == 0) return null;
+            int pick = Random.Range(0, count);
+            int idx = 0;
+            foreach (var a in _attractions)
+            {
+                if (a.IsActive)
+                {
+                    if (idx == pick) return a;
+                    idx++;
+                }
+            }
+            return null;
+        }
+
         private FearAttraction GetRandomInactive()
         {
             int count = 0;

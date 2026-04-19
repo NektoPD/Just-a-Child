@@ -14,6 +14,7 @@ namespace Installers
         [SerializeField] private GameFlowController _gameFlowController;
         [SerializeField] private FearAttractionManager _fearAttractionManager;
         [SerializeField] private InspectionFeedbackView _inspectionFeedbackView;
+        [SerializeField] private MovementController _movementController;
 
         public override void InstallBindings()
         {
@@ -25,6 +26,7 @@ namespace Installers
             Container.Bind<GameFlowController>().FromInstance(_gameFlowController).AsSingle();
             Container.Bind<FearAttractionManager>().FromInstance(_fearAttractionManager).AsSingle();
             Container.Bind<InspectionFeedbackView>().FromInstance(_inspectionFeedbackView).AsSingle();
+            Container.Bind<MovementController>().FromInstance(_movementController).AsSingle();
         }
     }
 }
