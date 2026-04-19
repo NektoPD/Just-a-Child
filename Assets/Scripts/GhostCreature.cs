@@ -32,6 +32,7 @@ public class GhostCreature : MonoBehaviour
         transform.position = position;
         gameObject.SetActive(true);
         _isActive = true;
+        Debug.Log(_isActive);
         _isFleeing = false;
         SetAlpha(1f);
         _animator.SetFloat(Walking, 0f);
@@ -42,6 +43,9 @@ public class GhostCreature : MonoBehaviour
         if (!_isActive || _isFleeing || _playerTransform == null) return;
 
         float dist = Vector2.Distance(transform.position, _playerTransform.position);
+        
+        Debug.Log(dist);
+        
         if (dist < _detectRadius)
             StartCoroutine(FleeCoroutine());
     }

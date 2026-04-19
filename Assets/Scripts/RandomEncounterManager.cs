@@ -57,7 +57,6 @@ public class RandomEncounterManager : MonoBehaviour
             _currentGhost.SetPlayerTransform(_playerTransform);
         }
 
-        if (!_currentGhost.gameObject.activeSelf)
-            _currentGhost.Spawn(position);
+        _currentGhost.Spawn(position);
     }
 }
