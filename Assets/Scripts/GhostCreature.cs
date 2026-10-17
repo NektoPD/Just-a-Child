@@ -97,7 +97,6 @@ public class GhostCreature : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!_isActive || !other.CompareTag("Player")) return;
-        _playerModel.IncreaseFearBy(_fearOnCollision);
     }
 
     private void OnDestroy()

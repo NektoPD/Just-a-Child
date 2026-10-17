@@ -52,7 +52,6 @@ namespace Furniture
             _movementController.enabled = false;
             _playerModel.SetSitting(true);
             _playerView.ShowInteraction(false);
-            _decreaseCoroutine = StartCoroutine(FearDecreaseCoroutine());
         }
 
         public void StandUp()
@@ -64,16 +63,6 @@ namespace Furniture
             {
                 StopCoroutine(_decreaseCoroutine);
                 _decreaseCoroutine = null;
-            }
-        }
-
-        private IEnumerator FearDecreaseCoroutine()
-        {
-            var wait = new WaitForSeconds(_fearDecreaseInterval);
-            while (_isOccupied)
-            {
-                _playerModel.DecreaseFearBy(_fearDecreasePerTick);
-                yield return wait;
             }
         }
 

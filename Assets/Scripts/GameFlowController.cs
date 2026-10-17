@@ -29,22 +29,14 @@ public class GameFlowController : MonoBehaviour
     [SerializeField, TextArea(2, 5)] private string _firstFearAttractionText = "What was that sound?..";
     [SerializeField, TextArea(2, 5)] private string _afterInvestigationText = "I need to stay calm..";
 
-    [Header("First Fear Attraction")]
-    [SerializeField] private FearAttraction _firstFearAttraction;
-
     [Header("Lighting")]
     [SerializeField] private Light2D _globalLight;
     [SerializeField] private float _introLightIntensity = 0.3f;
     [SerializeField] private float _gameLightIntensity = 0.05f;
     [SerializeField] private float _lightTransitionDuration = 1.5f;
 
-    [Header("Game Timer")]
-    [SerializeField] private float _gameDuration = 300f;
-    [SerializeField] private TimerView _timerView;
-
     [Header("Player References")]
     [SerializeField] private MovementController _movementController;
-    [SerializeField] private PlayerFearController _fearController;
 
     [Header("UI")]
     [SerializeField] private CanvasGroup _fearMeterRoot;
@@ -65,18 +57,14 @@ public class GameFlowController : MonoBehaviour
     [SerializeField] private float _winLightIntensity = 1f;
 
     private PlayerModel _playerModel;
-    private PlayerConfig _playerConfig;
-    private FearAttractionManager _fearAttractionManager;
     private float _remainingTime;
     private bool _gameRunning;
     private readonly CompositeDisposable _disposables = new CompositeDisposable();
 
     [Inject]
-    public void Construct(PlayerModel playerModel, PlayerConfig playerConfig, FearAttractionManager fearAttractionManager)
+    public void Construct(PlayerModel playerModel)
     {
         _playerModel = playerModel;
-        _playerConfig = playerConfig;
-        _fearAttractionManager = fearAttractionManager;
     }
 
     private void Awake()
@@ -89,7 +77,6 @@ public class GameFlowController : MonoBehaviour
     {
         _movementController.enabled = false;
         _fearMeterRoot.alpha = 0f;
-        _timerView.Hide();
         _winScreen.alpha = 0f;
         _winScreen.gameObject.SetActive(false);
         _loseScreen.alpha = 0f;
@@ -131,9 +118,6 @@ public class GameFlowController : MonoBehaviour
         yield return _fadeOverlay.DOFade(1f, _fadeOutDuration).WaitForCompletion();
         yield return new WaitForSeconds(2f);
 
-        if (_firstFearAttraction != null)
-            _firstFearAttraction.Activate();
-
         yield return _fadeOverlay.DOFade(0f, _fadeInDuration).WaitForCompletion();
 
         bool textDone = false;
@@ -141,15 +125,6 @@ public class GameFlowController : MonoBehaviour
         yield return new WaitUntil(() => textDone);
 
         _movementController.enabled = true;
-
-        if (_firstFearAttraction != null)
-        {
-            bool investigated = false;
-            void OnInvestigated() => investigated = true;
-            _firstFearAttraction.OnInvestigated += OnInvestigated;
-            yield return new WaitUntil(() => investigated);
-            _firstFearAttraction.OnInvestigated -= OnInvestigated;
-        }
 
         _movementController.enabled = false;
         textDone = false;
@@ -163,7 +138,6 @@ public class GameFlowController : MonoBehaviour
     private void StartGame()
     {
         _fearMeterRoot.DOFade(1f, 0.5f);
-        _timerView.Show();
 
         if (_controlsHint != null)
         {
@@ -176,23 +150,13 @@ public class GameFlowController : MonoBehaviour
             DOTween.To(() => _globalLight.intensity, x => _globalLight.intensity = x,
                 _gameLightIntensity, _lightTransitionDuration);
 
-        _fearController.StartIncreasingFear();
-        _fearAttractionManager.StartSpawning();
-
         if (_soundIndicator != null)
             _soundIndicator.StartIndicating();
 
         if (_encounterManager != null)
             _encounterManager.StartEncounters();
 
-        _remainingTime = _gameDuration;
         _gameRunning = true;
-
-        _playerModel.CurrentFearLevel.Subscribe(fear =>
-        {
-            if (_gameRunning && fear >= _playerConfig.MaxFearValue)
-                GameOver(false);
-        }).AddTo(_disposables);
     }
 
     private void Update()
@@ -200,7 +164,6 @@ public class GameFlowController : MonoBehaviour
         if (!_gameRunning) return;
 
         _remainingTime -= Time.deltaTime;
-        _timerView.UpdateTimer(_remainingTime);
 
         if (_remainingTime <= 0f)
             GameOver(true);
@@ -211,10 +174,6 @@ public class GameFlowController : MonoBehaviour
         if (!_gameRunning) return;
         _gameRunning = false;
 
-        _fearController.StopIncreasingFear();
-        _fearController.StopDecreaseFearWithCooldown();
-        _fearAttractionManager.StopSpawning();
-        _fearAttractionManager.DeactivateAll();
         _movementController.enabled = false;
 
         if (_soundIndicator != null)
