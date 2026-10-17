@@ -64,9 +64,6 @@ public class RandomEncounterManager : MonoBehaviour
 
         _currentGhost.Spawn(position);
     }
-<<<<<<< Updated upstream
-}
-=======
 
     private void OnGhostFled()
     {
@@ -83,4 +80,3 @@ public class RandomEncounterManager : MonoBehaviour
             _currentGhost.OnFled -= OnGhostFled;
     }
 }
->>>>>>> Stashed changes
