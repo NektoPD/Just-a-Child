@@ -1,12 +1,8 @@
 using System.Collections;
 using Cinemachine;
 using DG.Tweening;
-using Furniture;
-using UniRx;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.SceneManagement;
-using Zenject;
 
 public class GameFlowController : MonoBehaviour
 {
@@ -21,13 +17,8 @@ public class GameFlowController : MonoBehaviour
 
     [Header("Intro Cutscene")]
     [SerializeField] private CutsceneNPC _cutsceneNPC;
-    [SerializeField] private SittableObject _startingSeat;
+    [SerializeField] private Transform _startingPoint;
     [SerializeField] private float _cameraBlendWait = 2f;
-
-    [Header("Player Speech")]
-    [SerializeField] private SpeechBubbleView _playerSpeechBubble;
-    [SerializeField, TextArea(2, 5)] private string _firstFearAttractionText = "What was that sound?..";
-    [SerializeField, TextArea(2, 5)] private string _afterInvestigationText = "I need to stay calm..";
 
     [Header("Lighting")]
     [SerializeField] private Light2D _globalLight;
@@ -38,55 +29,20 @@ public class GameFlowController : MonoBehaviour
     [Header("Player References")]
     [SerializeField] private MovementController _movementController;
 
-    [Header("UI")]
-    [SerializeField] private CanvasGroup _fearMeterRoot;
-    [SerializeField] private CanvasGroup _winScreen;
-    [SerializeField] private CanvasGroup _loseScreen;
-    [SerializeField] private float _screenFadeDuration = 1f;
-    [SerializeField] private float _restartDelay = 3f;
-    [SerializeField] private CanvasGroup _controlsHint;
-
-    [Header("Sound Indicator")]
-    [SerializeField] private SoundDirectionIndicator _soundIndicator;
-
-    [Header("Random Encounters")]
-    [SerializeField] private RandomEncounterManager _encounterManager;
-
-    [Header("Win Cutscene")]
-    [SerializeField, TextArea(2, 5)] private string _winCutsceneText = "I survived the night!";
-    [SerializeField] private float _winLightIntensity = 1f;
-
-    private PlayerModel _playerModel;
-    private float _remainingTime;
-    private bool _gameRunning;
-    private readonly CompositeDisposable _disposables = new CompositeDisposable();
-
-    [Inject]
-    public void Construct(PlayerModel playerModel)
-    {
-        _playerModel = playerModel;
-    }
+    private Tween _lightTween;
 
     private void Awake()
     {
-        _introVCam.Priority = 20;
-        _playerVCam.Priority = 10;
+        if (_introVCam != null)
+            _introVCam.Priority = 20;
+
+        if (_playerVCam != null)
+            _playerVCam.Priority = 10;
     }
 
     private void Start()
     {
         _movementController.enabled = false;
-        _fearMeterRoot.alpha = 0f;
-        _winScreen.alpha = 0f;
-        _winScreen.gameObject.SetActive(false);
-        _loseScreen.alpha = 0f;
-        _loseScreen.gameObject.SetActive(false);
-
-        if (_controlsHint != null)
-        {
-            _controlsHint.alpha = 0f;
-            _controlsHint.gameObject.SetActive(false);
-        }
 
         if (_fadeOverlay != null)
             _fadeOverlay.alpha = 1f;
@@ -94,18 +50,23 @@ public class GameFlowController : MonoBehaviour
         if (_globalLight != null)
             _globalLight.intensity = _introLightIntensity;
 
-        if (_startingSeat != null)
-            _movementController.transform.position = _startingSeat.SitPoint.position;
+        if (_startingPoint != null)
+            _movementController.transform.position = _startingPoint.position;
 
         StartCoroutine(IntroSequence());
     }
 
     private IEnumerator IntroSequence()
     {
-        yield return _fadeOverlay.DOFade(0f, _fadeInDuration).WaitForCompletion();
+        if (_fadeOverlay != null)
+            yield return _fadeOverlay.DOFade(0f, _fadeInDuration).WaitForCompletion();
 
-        _introVCam.Priority = 0;
-        _playerVCam.Priority = 20;
+        if (_introVCam != null)
+            _introVCam.Priority = 0;
+
+        if (_playerVCam != null)
+            _playerVCam.Priority = 20;
+
         yield return new WaitForSeconds(_cameraBlendWait);
 
         if (_cutsceneNPC != null)
@@ -115,110 +76,30 @@ public class GameFlowController : MonoBehaviour
             yield return new WaitUntil(() => cutsceneDone);
         }
 
-        yield return _fadeOverlay.DOFade(1f, _fadeOutDuration).WaitForCompletion();
-        yield return new WaitForSeconds(2f);
-
-        yield return _fadeOverlay.DOFade(0f, _fadeInDuration).WaitForCompletion();
-
-        bool textDone = false;
-        _playerSpeechBubble.ShowText(_firstFearAttractionText, () => textDone = true);
-        yield return new WaitUntil(() => textDone);
-
-        _movementController.enabled = true;
-
-        _movementController.enabled = false;
-        textDone = false;
-        _playerSpeechBubble.ShowText(_afterInvestigationText, () => textDone = true);
-        yield return new WaitUntil(() => textDone);
-
-        _movementController.enabled = true;
-        StartGame();
-    }
-
-    private void StartGame()
-    {
-        _fearMeterRoot.DOFade(1f, 0.5f);
-
-        if (_controlsHint != null)
+        if (_fadeOverlay != null)
         {
-            _controlsHint.gameObject.SetActive(true);
-            _controlsHint.DOFade(1f, 0.3f).OnComplete(() =>
-                _controlsHint.DOFade(0f, 0.5f).SetDelay(2f));
+            yield return _fadeOverlay.DOFade(1f, _fadeOutDuration).WaitForCompletion();
+            yield return new WaitForSeconds(2f);
+            yield return _fadeOverlay.DOFade(0f, _fadeInDuration).WaitForCompletion();
         }
 
         if (_globalLight != null)
-            DOTween.To(() => _globalLight.intensity, x => _globalLight.intensity = x,
-                _gameLightIntensity, _lightTransitionDuration);
-
-        if (_soundIndicator != null)
-            _soundIndicator.StartIndicating();
-
-        if (_encounterManager != null)
-            _encounterManager.StartEncounters();
-
-        _gameRunning = true;
-    }
-
-    private void Update()
-    {
-        if (!_gameRunning) return;
-
-        _remainingTime -= Time.deltaTime;
-
-        if (_remainingTime <= 0f)
-            GameOver(true);
-    }
-
-    private void GameOver(bool won)
-    {
-        if (!_gameRunning) return;
-        _gameRunning = false;
-
-        _movementController.enabled = false;
-
-        if (_soundIndicator != null)
-            _soundIndicator.StopIndicating();
-
-        if (_encounterManager != null)
-            _encounterManager.StopEncounters();
-
-        if (won)
-            StartCoroutine(WinCutscene());
-        else
         {
-            _loseScreen.gameObject.SetActive(true);
-            _loseScreen.DOFade(1f, _screenFadeDuration);
-            StartCoroutine(RestartAfterDelay());
-        }
-    }
-
-    private IEnumerator WinCutscene()
-    {
-        if (_globalLight != null)
-            yield return DOTween.To(() => _globalLight.intensity, x => _globalLight.intensity = x,
-                _winLightIntensity, _lightTransitionDuration).WaitForCompletion();
-
-        if (_playerSpeechBubble != null && !string.IsNullOrEmpty(_winCutsceneText))
-        {
-            bool textDone = false;
-            _playerSpeechBubble.ShowText(_winCutsceneText, () => textDone = true);
-            yield return new WaitUntil(() => textDone);
+            _lightTween = DOTween.To(
+                () => _globalLight.intensity,
+                intensity => _globalLight.intensity = intensity,
+                _gameLightIntensity,
+                _lightTransitionDuration);
         }
 
-        _winScreen.gameObject.SetActive(true);
-        _winScreen.DOFade(1f, _screenFadeDuration);
-        StartCoroutine(RestartAfterDelay());
+        _movementController.enabled = true;
     }
 
-    private IEnumerator RestartAfterDelay()
+    private void OnDestroy()
     {
-        yield return new WaitForSeconds(_restartDelay);
-        DOTween.KillAll();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
+        _lightTween?.Kill();
 
-    private void OnDisable()
-    {
-        _disposables.Dispose();
+        if (_fadeOverlay != null)
+            _fadeOverlay.DOKill();
     }
 }

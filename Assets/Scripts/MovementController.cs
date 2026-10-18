@@ -14,11 +14,11 @@ public class MovementController : MonoBehaviour
 
     public event Action<float> Moved;
     public event Action<float> MovedX;
-    
+
     private void Awake()
     {
         _rigidbody2D = GetComponent<Rigidbody2D>();
-        
+
         _moveAction = InputSystem.actions.FindAction("Move");
     }
 
@@ -27,14 +27,24 @@ public class MovementController : MonoBehaviour
         DetectMovement();
     }
 
+    private void OnDisable()
+    {
+        _moveDirection = Vector2.zero;
+
+        if (_rigidbody2D != null)
+            _rigidbody2D.linearVelocity = Vector2.zero;
+
+        Moved?.Invoke(0f);
+    }
+
     private void DetectMovement()
     {
         _moveDirection = _moveAction.ReadValue<Vector2>();
-        
-        if(!_rigidbody2D)
+
+        if (!_rigidbody2D)
             return;
 
-        _rigidbody2D.linearVelocity = _moveDirection * (_speed);
+        _rigidbody2D.linearVelocity = _moveDirection * _speed;
         MovedX?.Invoke(_moveDirection.x);
         Moved?.Invoke(_rigidbody2D.linearVelocity.magnitude);
     }

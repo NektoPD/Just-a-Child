@@ -1,11 +1,10 @@
-using System;
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
 public class CharacterSpriteFlipper : MonoBehaviour
 {
     [SerializeField] private MovementController _movementController;
-    
+
     private SpriteRenderer _spriteRenderer;
 
     private void Awake()
@@ -25,9 +24,9 @@ public class CharacterSpriteFlipper : MonoBehaviour
 
     private void SetSpriteDirection(float movementDirection)
     {
-        if(movementDirection == 0)
+        if (movementDirection == 0)
             return;
-        
+
         _spriteRenderer.flipX = movementDirection < 0;
     }
 }

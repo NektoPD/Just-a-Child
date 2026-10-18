@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 4568970858900561372}
   - component: {fileID: 8003265362546228926}
   - component: {fileID: 4756448314561678853}
-  - component: {fileID: 1786735830464024056}
   m_Layer: 0
   m_Name: Ghost
   m_TagString: Untagged
@@ -153,21 +152,3 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: -0.09}
   m_Size: {x: 0.26, y: 0.32}
   m_Direction: 0
---- !u!114 &1786735830464024056
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4398767815650403203}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd4b3b9d4956d8c48a4cb2719979c1e1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GhostCreature
-  _animator: {fileID: 8003265362546228926}
-  _spriteRenderer: {fileID: 4568970858900561372}
-  _fleeSpeed: 3
-  _fleeDistance: 5
-  _detectRadius: 2.5
-  _fearOnCollision: 20
