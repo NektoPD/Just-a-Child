@@ -3,11 +3,12 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class CharacterAnimatorController : MonoBehaviour
 {
-    private const string MovementParameter = "Walking";
+    private static readonly int MoveXHash = Animator.StringToHash("MoveX");
+    private static readonly int MoveYHash = Animator.StringToHash("MoveY");
+    private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
 
     [SerializeField] private MovementController _movementController;
 
-    private int _walking = Animator.StringToHash(MovementParameter);
     private Animator _animator;
 
     private void Awake()
@@ -17,16 +18,30 @@ public class CharacterAnimatorController : MonoBehaviour
 
     private void OnEnable()
     {
-        _movementController.Moved += SetWalkingAnimation;
+        _movementController.Moved += OnMoved;
+        _movementController.DirectionChanged += OnDirectionChanged;
+        _movementController.MovingChanged += OnMovingChanged;
     }
 
     private void OnDisable()
     {
-        _movementController.Moved -= SetWalkingAnimation;
+        _movementController.Moved -= OnMoved;
+        _movementController.DirectionChanged -= OnDirectionChanged;
+        _movementController.MovingChanged -= OnMovingChanged;
     }
 
-    private void SetWalkingAnimation(float speed)
+    private void OnMoved(float speed)
     {
-        _animator.SetFloat(_walking, speed);
+    }
+
+    private void OnDirectionChanged(Vector2 rawInput)
+    {
+        _animator.SetFloat(MoveXHash, rawInput.x);
+        _animator.SetFloat(MoveYHash, rawInput.y);
+    }
+
+    private void OnMovingChanged(bool isMoving)
+    {
+        _animator.SetBool(IsMovingHash, isMoving);
     }
 }
