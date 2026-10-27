@@ -1,26 +1,26 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Rooms
 {
     public class Room : MonoBehaviour
     {
-        [SerializeField] private Collider2D _exitCollider;
-        
-        public bool PlayerInReach { get; private set; }
+        [Header("Room")]
+        [SerializeField] private int _id;
+        [SerializeField] private string _roomName;
+        [SerializeField] private Transform _entryPoint;
 
-        private RoomData _data;
+        [Header("Teleports")]
+        [SerializeField] private List<RoomTeleport> _teleports = new List<RoomTeleport>();
 
-        public event Action GotPlayer;
-        
-        private void OnTriggerStay2D(Collider2D other)
-        { 
-            GotPlayer?.Invoke();
-        }
+        public int Id => _id;
+        public string RoomName => string.IsNullOrWhiteSpace(_roomName) ? name : _roomName;
+        public Transform EntryPoint => _entryPoint != null ? _entryPoint : transform;
+        public IReadOnlyList<RoomTeleport> Teleports => _teleports;
 
-        public void SetupData(RoomData data)
+        private void Reset()
         {
-            _data = data ?? throw new ArgumentNullException(nameof(data));
+            _teleports = new List<RoomTeleport>(GetComponentsInChildren<RoomTeleport>(true));
         }
     }
 }

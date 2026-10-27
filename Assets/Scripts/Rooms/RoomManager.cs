@@ -1,27 +1,47 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Rooms
 {
     public class RoomManager : MonoBehaviour
     {
-        [SerializeField] private List<RoomData> _roomDatas = new List<RoomData>();
-       
+        [SerializeField] private List<Room> _rooms = new List<Room>();
 
-        public Transform GetRoomEntryPosition(int id, string name = "name")
+        public IReadOnlyList<Room> Rooms => _rooms;
+
+        public bool TryGetRoom(int id, out Room room)
         {
-            return _roomDatas.FirstOrDefault(room =>
-                room.Id == id || room.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))?.EntryPosition;
+            room = _rooms.Find(item => item != null && item.Id == id);
+            return room != null;
         }
-    }
 
-    [Serializable]
-    public class RoomData
-    {
-        public int Id;
-        public string Name;
-        public Transform EntryPosition;
+        public bool TryGetRoom(string roomName, out Room room)
+        {
+            room = _rooms.Find(item => item != null &&
+                string.Equals(item.RoomName, roomName, System.StringComparison.InvariantCultureIgnoreCase));
+            return room != null;
+        }
+
+        public Transform GetRoomEntryPosition(int id, string roomName = null)
+        {
+            if (!TryGetRoom(id, out Room room) &&
+                (string.IsNullOrWhiteSpace(roomName) || !TryGetRoom(roomName, out room)))
+            {
+                return null;
+            }
+
+            return room.EntryPoint;
+        }
+
+        public bool TryTeleport(Character player, Room targetRoom, Transform targetEntryPoint)
+        {
+            if (player == null || targetRoom == null)
+            {
+                return false;
+            }
+
+            Transform entryPoint = targetEntryPoint != null ? targetEntryPoint : targetRoom.EntryPoint;
+            return player.ApplyTeleport(entryPoint);
+        }
     }
 }
