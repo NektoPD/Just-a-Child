@@ -26,7 +26,7 @@ public class GameFlowController : MonoBehaviour
     [SerializeField] private float _gameLightIntensity = 0.05f;
     [SerializeField] private float _lightTransitionDuration = 1.5f;
 
-    [Header("Player References")]
+    [Header("Character References")]
     [SerializeField] private MovementController _movementController;
 
     private Tween _lightTween;
