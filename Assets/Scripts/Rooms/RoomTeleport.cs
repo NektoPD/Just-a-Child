@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -51,13 +52,13 @@ namespace Rooms
 
         private void Update()
         {
-            if (_playerInReach == null || Mouse.current == null ||
+            if (_playerInReach == null || _playerInReach.IsTeleporting || Mouse.current == null ||
                 !Mouse.current.leftButton.wasPressedThisFrame)
             {
                 return;
             }
 
-            TeleportPlayer();
+            TeleportPlayerAsync().Forget();
         }
 
         private void SetPlayerIfFound(Collider2D other)
@@ -69,8 +70,8 @@ namespace Rooms
                 _playerInReach = character;
             }
         }
-        
-        private void TeleportPlayer()
+
+        private async UniTask TeleportPlayerAsync()
         {
             if (_targetRoom == null)
             {
@@ -78,9 +79,11 @@ namespace Rooms
                 return;
             }
 
-            if (!_playerInReach.TeleportTo(_targetRoom, _targetEntryPoint))
+            Character player = _playerInReach;
+
+            if (!await player.TeleportToAsync(_targetRoom, _targetEntryPoint))
             {
-                Debug.LogWarning("RoomTeleport could not find a target entry point.", this);
+                Debug.LogWarning("RoomTeleport could not teleport the player.", this);
             }
         }
     }

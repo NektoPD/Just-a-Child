@@ -1,8 +1,6 @@
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using TMPro;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
 using UnityEngine.UI;
 
 namespace UI
@@ -10,18 +8,20 @@ namespace UI
     public class ScreenFader : MonoBehaviour
     {
         [SerializeField] private Image _overlay;
-        [SerializeField] private float _duration;
+        [SerializeField, Min(0f)] private float _duration;
 
         public async UniTask FadeInAsync()
         {
-            await transform.DOMoveX(2, 10);
-            //await _overlay.DOFade(1f, _duration);
+            await _overlay.DOFade(1f, _duration)
+                .SetLink(gameObject)
+                .AsyncWaitForCompletion();
         }
 
         public async UniTask FadeOutAsync()
         {
-            await _overlay.DOFade(0f, _duration).ToUniTask();
+            await _overlay.DOFade(0f, _duration)
+                .SetLink(gameObject)
+                .AsyncWaitForCompletion();
         }
-    }
     }
 }
