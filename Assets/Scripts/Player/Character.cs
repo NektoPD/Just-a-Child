@@ -1,4 +1,5 @@
 using Rooms;
+using UI;
 using UnityEngine;
 using Zenject;
 
@@ -6,12 +7,14 @@ using Zenject;
 public class Character : MonoBehaviour
 {
     private RoomManager _roomManager;
+    private ScreenFader _screenFader;
     private Rigidbody2D _rigidbody2D;
 
     [Inject]
-    public void Construct(RoomManager roomManager)
+    public void Construct(RoomManager roomManager, ScreenFader screenFader)
     {
         _roomManager = roomManager;
+        _screenFader = screenFader;
     }
 
     private void Awake()
@@ -41,11 +44,8 @@ public class Character : MonoBehaviour
         {
             return false;
         }
-
-        if (_rigidbody2D == null)
-        {
-            _rigidbody2D = GetComponent<Rigidbody2D>();
-        }
+        
+        _screenFader.FadeIn();
 
         Vector3 targetPosition = entryPoint.position;
 
@@ -57,6 +57,7 @@ public class Character : MonoBehaviour
         }
 
         transform.position = targetPosition;
+        _screenFader.FadeOut();
         return true;
     }
 }

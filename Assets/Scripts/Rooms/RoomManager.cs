@@ -22,17 +22,6 @@ namespace Rooms
             return room != null;
         }
 
-        public Transform GetRoomEntryPosition(int id, string roomName = null)
-        {
-            if (!TryGetRoom(id, out Room room) &&
-                (string.IsNullOrWhiteSpace(roomName) || !TryGetRoom(roomName, out room)))
-            {
-                return null;
-            }
-
-            return room.EntryPoint;
-        }
-
         public bool TryTeleport(Character player, Room targetRoom, Transform targetEntryPoint)
         {
             if (player == null || targetRoom == null)

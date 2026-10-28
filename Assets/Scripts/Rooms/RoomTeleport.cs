@@ -57,11 +57,6 @@ namespace Rooms
                 return;
             }
 
-            if (!IsPointerOverCollider())
-            {
-                return;
-            }
-
             TeleportPlayer();
         }
 
@@ -74,29 +69,7 @@ namespace Rooms
                 _playerInReach = character;
             }
         }
-
-        private bool IsPointerOverCollider()
-        {
-            if (_collider == null || Mouse.current == null)
-            {
-                return false;
-            }
-
-            Camera camera = _inputCamera != null ? _inputCamera : Camera.main;
-
-            if (camera == null)
-            {
-                return false;
-            }
-
-            Vector2 screenPosition = Mouse.current.position.ReadValue();
-            float distanceToCollider = Mathf.Abs(camera.transform.position.z - _collider.transform.position.z);
-            Vector3 worldPosition = camera.ScreenToWorldPoint(
-                new Vector3(screenPosition.x, screenPosition.y, distanceToCollider));
-
-            return _collider.OverlapPoint(worldPosition);
-        }
-
+        
         private void TeleportPlayer()
         {
             if (_targetRoom == null)
